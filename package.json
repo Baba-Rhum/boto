@@ -1,0 +1,17 @@
+{
+  "name": "bot_ds",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Moiiiiiii",
+  "license": "ISC",
+  "dependencies": {
+    "@discordjs/rest": "^2.6.0",
+    "better-sqlite3": "^12.8.0",
+    "discord.js": "^13.17.1",
+    "fs": "^0.0.1-security"
+  }
+}
