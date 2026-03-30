@@ -41,7 +41,10 @@ module.exports = async (bot, message) => {
 
     // 1. Anti spam global
     if (antiSpam(message.author.id)) {
-        message.author.createDM("🚫 Spam détecté.", { flags: 64 });
+        message.author.createDM().then(dm => {
+            dm.send("🚫 Tu es en cooldown global à cause de spam. Attends un peu avant de réessayer.");
+        });
+        cooldown(message.author.id, "global", 10);
         message.delete [message.author.id];
         return console.log("Spam détecté de", message.author.tag);
 
