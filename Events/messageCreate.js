@@ -41,7 +41,9 @@ module.exports = async (bot, message) => {
 
     // 1. Anti spam global
     if (antiSpam(message.author.id)) {
-        return message.reply("🚫 Spam détecté.");
+        delete [message.author.id];
+        return message.channel[1].send("🚫 Spam détecté.", { flags: 64 });
+
     }
 
     let prefix = "/";

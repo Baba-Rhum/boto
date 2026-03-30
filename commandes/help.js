@@ -23,10 +23,10 @@ module.exports = {
         // Vérifier si c'est une interaction (slash command) ou un message
         if (messageOrInteraction.reply && typeof messageOrInteraction.reply === 'function' && messageOrInteraction.isCommand && messageOrInteraction.isCommand()) {
             // C'est une interaction slash
-            await messageOrInteraction.reply({ embeds: [helpEmbed] });
+            await messageOrInteraction.reply({ embeds: [helpEmbed], flags: 64  });
         } else {
             // C'est un message
-            await messageOrInteraction.channel.send({ embeds: [helpEmbed] });
+            await messageOrInteraction.channel.send({ embeds: [helpEmbed], flags: 64 });
         }
     }
 
