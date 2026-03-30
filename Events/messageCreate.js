@@ -45,7 +45,7 @@ module.exports = async (bot, message) => {
             dm.send("🚫 Tu es en cooldown global à cause de spam. Attends un peu avant de réessayer.");
         });
         cooldown(message.author.id, "global", 10);
-        message.delete [message.author.id];
+        message.delete();
         return console.log("Spam détecté de", message.author.tag);
 
     }
