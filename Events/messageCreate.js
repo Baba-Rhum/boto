@@ -40,14 +40,26 @@ module.exports = async (bot, message) => {
     const { log } = require("../utils/logger");
 
     // 1. Anti spam global
-    if (antiSpam(message.author.id)) {
+    const spamResult = antiSpam(message);
+    if (spamResult.isSpam) {
         message.author.createDM().then(dm => {
             dm.send("🚫 Tu es en cooldown global à cause de spam. Attends un peu avant de réessayer.");
         });
+
         if (message.member) {
-            message.member.timeout(10 * 60 * 1000, "Spam détecté").catch(console.error);
+            message.member.timeout(10 * 60 * 1000, "Spam détecté").catch(err => {
+                console.error("Timeout impossible :", err);
+                message.channel.send("⚠️ Je n'ai pas pu mute ce membre (permissions/hiérarchie insuffisantes).");
+            });
         }
-        message.delete();
+
+        // Supprime tous les messages stockés par antiSpam (flood des 5+ messages)
+        for (const msgId of spamResult.messageIds) {
+            message.channel.messages.fetch(msgId)
+                .then(m => m.delete().catch(() => {}))
+                .catch(() => {});
+        }
+
         return console.log("Spam détecté de", message.author.tag);
 
     }
