@@ -42,7 +42,8 @@ module.exports = async (bot, message) => {
     // 1. Anti spam global
     if (antiSpam(message.author.id)) {
         message.author.createDM("🚫 Spam détecté.", { flags: 64 });
-        return delete [message.author.id];
+        message.delete [message.author.id];
+        return console.log("Spam détecté de", message.author.tag);
 
     }
 
