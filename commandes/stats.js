@@ -17,6 +17,6 @@ module.exports = {
             ]
         };
 
-        message.reply({ embeds: [embed] });
+        message.reply({ embeds: [embed], flags: 64 });
     }
 };
