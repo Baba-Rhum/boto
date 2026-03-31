@@ -1,35 +1,11 @@
 const discord = require("discord.js")
 const { EmbedBuilder, Colors } = require("discord.js");
+const { system_prompt, model } = require("../config");
 
-
-
-const quoi = [];
-const ethic = []
-const tg = []
-const sergiu = []
-const video_raciste = [];
-/*
-const quoi = ["quoi", "kwa", "qwa", "qoua", "koua"];
-const ethic = ["ethic", "loi", "law", "low", "rules", "règle", "nique", "mère", "mere", "gueule"]
-const tg = ["tg", "noir", "gay", "pd"]
-const sergiu = ["roumain", "sergiu"]
-const video_raciste = [
-    "https://www.youtube.com/watch?v=Z0DO0XyS8Ko&list=RDZ0DO0XyS8Ko&start_radio=1&pp=ygUJcGUgY2ltcG9poAcB"
-];*/
-const discours = [
-      "Chat Control est une abomination, une arme de surveillance de masse déguisée en dispositif de “protection”. C’est la mort programmée de notre vie privée. Autoriser les autorités à scanner chaque mot, chaque image, chaque pensée échangée, c’est abandonner notre dignité humaine. Le chiffrement est notre dernier refuge contre l’intrusion étatique. Ils veulent le briser pour transformer chaque citoyen en suspect permanent.Ceux qui défendent le Chat Control veulent fabriquer une société de peur où la confiance n’existe plus. Sous prétexte de sécurité, ils imposent une dictature numérique déguisée. Accepter ce système, c’est accepter d’être surveillés comme du bétail. Aujourd’hui ils scannent nos messages, demain ils dicteront ce qu’on a le droit de dire, penser ou ressentir.Refuser le Chat Control, ce n’est pas soutenir les criminels — c’est protéger la liberté fondamentale de tous. La confidentialité n’est pas un privilège, c’est un droit humain sacré. Nous devons nous opposer avec une détermination inébranlable à toute tentative de réduire la sphère privée à un espace contrôlé par des algorithmes et des bureaucrates. La liberté ne se négocie pas. Elle se défend, coûte que coûte.",
-      "Il est temps d’arrêter cette hypocrisie autour de la soi-disant “liberté numérique”. Chaque jour, des criminels, des terroristes et des prédateurs se cachent derrière le voile de la confidentialité. Ils utilisent les messageries chiffrées comme des armes invisibles, et nous, citoyens honnêtes, sommes censés accepter cela au nom d’une liberté abstraite ? Non. Le Chat Control est une nécessité absolue. Il représente le dernier rempart de la société civilisée face au chaos de l’anonymat incontrôlé. Ceux qui s’opposent à ce système protègent indirectement les pires individus. Ils préfèrent défendre un principe idéalisé plutôt que la sécurité réelle des enfants, des innocents et de la majorité silencieuse. Nous devons tout surveiller, sans exception, car la seule façon de garantir la paix est d’avoir une transparence totale. Le contrôle des communications n’est pas une atteinte à la liberté : c’est une purification du numérique. Si quelqu’un n’a rien à cacher, il n’a rien à craindre. Seuls les coupables tremblent lorsque la lumière se fait. Le Chat Control doit devenir universel, imposé, inévitable. C’est un devoir moral et social de tout gouvernement responsable.",
-      "J'espère que tu passes une bonne journée ! 🌞",
-      "Besoin d'aide ? Je suis là 🤖",
-      "Hello world ! 🌍",
-      "Les noirs et les arabes nous...",
-      "Aujourd'hui les homosexuel sont...",
-      "Je pense qu'en france la droite est la solution à....",
-      "@giganotosorus je te passe la flamme",
-      "Tu est une bien belle salope"
-
-    ];
-
+function clean_message_content(message) {
+    if (!message || typeof message.content !== "string") return "";
+    return message.content.trim();
+}
 
 module.exports = async (bot, message) => {
     if (message.author.bot) return;
@@ -62,6 +38,45 @@ module.exports = async (bot, message) => {
 
         return console.log("Spam détecté de", message.author.tag);
 
+    }
+
+    // 2. Mention du bot (IA)
+    if (message.mentions.users.has(bot.user.id)) {
+        const fetchedMessages = await message.channel.messages.fetch({ limit: 5 });
+        console.log("bot mentionné");
+
+        const sortedMessages = Array.from(fetchedMessages.values()).sort((a, b) => a.createdTimestamp - b.createdTimestamp);
+
+        const messages = [];
+        for (const m of sortedMessages) {
+            const role = m.author.id === bot.user.id ? "assistant" : "user";
+            const content = clean_message_content(m);
+            messages.push({ role, content });
+        }
+
+        const prompt = typeof system_prompt === "string" && system_prompt.length > 0
+            ? system_prompt
+            : "You are a helpful assistant.";
+
+        messages.unshift({ role: "system", content: prompt });
+
+        const selectedModel = typeof model === "string" && model.length > 0 ? model : "gpt-4o-mini";
+
+        const mistralClient = bot.client_mistral;
+        if (!mistralClient) {
+            console.error("client_mistral non défini sur bot. Veuillez initialiser dans main.js");
+            return message.reply("❌ Erreur interne : client IA non disponible.");
+        }
+
+        const response = await mistralClient.chat.complete({
+            model: selectedModel,
+            messages: messages,
+            maxTokens: 256
+        });
+
+        const response_content = response.choices[0]?.message?.content || "Désolé, je n’ai pas pu générer de réponse.";
+        await message.reply(response_content);
+        return;
     }
 
     let prefix = "/";

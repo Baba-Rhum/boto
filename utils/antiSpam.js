@@ -1,6 +1,6 @@
 const spamMap = new Map();
 
-const WINDOW_MS = 2 * 60 * 1000; // 2 minutes
+const WINDOW_MS = 30 * 1000; // 30 seconds
 const THRESHOLD = 5; // 5 messages
 
 module.exports = (message) => {

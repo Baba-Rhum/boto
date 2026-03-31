@@ -1,4 +1,5 @@
 const { Client, Intents, Collection } = require("discord.js");
+const { Mistral } = require('@mistralai/mistralai');
 
 const bot = new Client({
     intents: [
@@ -10,6 +11,8 @@ const bot = new Client({
     partials: ["CHANNEL"]
 });
 
+
+
 const loadcommands = require("./loader/loadcommands");
 const loadEvents = require("./loader/loadEvents");
 const config = require("./config");
@@ -18,6 +21,8 @@ const { log } = require("./utils/logger");
 
 bot.commands = new Collection();
 
+const client_mistral = new Mistral({ apiKey: config.api_key });
+bot.client_mistral = client_mistral;
 bot.login(config.token);
 
 loadcommands(bot);
