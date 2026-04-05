@@ -1,6 +1,7 @@
 const discord = require("discord.js")
 const { EmbedBuilder, Colors } = require("discord.js");
 const { system_prompt, model } = require("../config");
+const ChatBot = require("../chatbot/ChatBot");
 
 function clean_message_content(message) {
     if (!message || typeof message.content !== "string") return "";
@@ -42,40 +43,17 @@ module.exports = async (bot, message) => {
 
     // 2. Mention du bot (IA)
     if (message.mentions.users.has(bot.user.id)) {
-        const fetchedMessages = await message.channel.messages.fetch({ limit: 5 });
-        console.log("bot mentionné");
+        try {
+            const chatBot = new ChatBot();
+            const conversationId = message.channel.id; // Use channel as conversation
+            const userMessage = clean_message_content(message);
 
-        const sortedMessages = Array.from(fetchedMessages.values()).sort((a, b) => a.createdTimestamp - b.createdTimestamp);
-
-        const messages = [];
-        for (const m of sortedMessages) {
-            const role = m.author.id === bot.user.id ? "assistant" : "user";
-            const content = clean_message_content(m);
-            messages.push({ role, content });
+            const response = await chatBot.sendConv(conversationId, userMessage);
+            await message.reply(response);
+        } catch (error) {
+            console.error("Erreur IA :", error);
+            await message.reply("❌ Erreur lors de la génération de la réponse IA.");
         }
-
-        const prompt = typeof system_prompt === "string" && system_prompt.length > 0
-            ? system_prompt
-            : "You are a helpful assistant.";
-
-        messages.unshift({ role: "system", content: prompt });
-
-        const selectedModel = typeof model === "string" && model.length > 0 ? model : "gpt-4o-mini";
-
-        const mistralClient = bot.client_mistral;
-        if (!mistralClient) {
-            console.error("client_mistral non défini sur bot. Veuillez initialiser dans main.js");
-            return message.reply("❌ Erreur interne : client IA non disponible.");
-        }
-
-        const response = await mistralClient.chat.complete({
-            model: selectedModel,
-            messages: messages,
-            maxTokens: 256
-        });
-
-        const response_content = response.choices[0]?.message?.content || "Désolé, je n’ai pas pu générer de réponse.";
-        await message.reply(response_content);
         return;
     }
 
