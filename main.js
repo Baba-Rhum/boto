@@ -1,5 +1,5 @@
 const { Client, Intents, Collection } = require("discord.js");
-const { Mistral } = require('@mistralai/mistralai');
+import { Mistral } from '@mistralai/mistralai';
 
 const bot = new Client({
     intents: [
