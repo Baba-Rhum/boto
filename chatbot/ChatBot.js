@@ -1,5 +1,5 @@
 const { ConversationResponse, MessageOutputEntry, Role } = require('@mistralai/mistralai/models/components');
-const { Mistral } = require('@mistralai/mistralai');
+import { Mistral } from '@mistralai/mistralai';
 const Conversation = require('./Conversation');
 const { api_key, agent_id, model } = require('../config');
 
